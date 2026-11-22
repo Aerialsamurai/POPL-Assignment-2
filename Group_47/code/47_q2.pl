@@ -132,7 +132,6 @@ all_equations(List, Equations) :-
     findall(E, equation(List, E), Es),
     sort(Es, Equations).
 
-% count_equations(+List, -N): N is the number of distinct valid equations.
 count_equations(List, N) :-
     all_equations(List, Es),
     length(Es, N).
