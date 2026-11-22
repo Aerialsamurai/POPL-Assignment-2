@@ -36,3 +36,39 @@ wrap_right(CP, PP, S, Out) :-
     ->  format(string(Out), "(~w)", [S])
     ;   Out = S
     ).
+
+% split(+List, -Left, -Right): List is Left followed by Right, both non-empty.
+split(List, [X|Xs], [Y|Ys]) :-
+    append([X|Xs], [Y|Ys], List).
+
+% expr(+Nums, -Str, -Val, -Prec): Str is the canonical string of an expression
+% tree using every number of Nums once, in order; Val is its integer value and
+% Prec its top-level precedence.  Each tree is produced exactly once.
+expr([N], Str, N, 3) :-
+    number_string(N, Str).
+expr(Nums, Str, Val, Prec) :-
+    split(Nums, Ls, Rs),
+    expr(Ls, LStr, LVal, LPrec),
+    expr(Rs, RStr, RVal, RPrec),
+    op_prec(Op, Prec),
+    apply_op(Op, LVal, RVal, Val),
+    wrap_left(LPrec, Prec, LStr, L),
+    wrap_right(RPrec, Prec, RStr, R),
+    format(string(Str), "~w~w~w", [L, Op, R]).
+
+% equation(+List, -Eq): Eq is the string "L=R" of a valid equation for List.
+% For each split, the right-hand expressions are computed once with findall/3
+% and the left-hand expressions are matched against them by value.
+equation(List, Eq) :-
+    is_list(List),
+    split(List, Ls, Rs),
+    findall(V-S, expr(Rs, S, V, _), Rights),
+    Rights \== [],
+    expr(Ls, LStr, Val, _),
+    member(Val-RStr, Rights),
+    format(string(Eq), "~w=~w", [LStr, RStr]).
+
+% generate_equation(+List, ?Equation): Equation is one valid equation for
+% List; fails if there is none (including lists of length 0 or 1).
+generate_equation(List, Equation) :-
+    once(equation(List, Equation)).
