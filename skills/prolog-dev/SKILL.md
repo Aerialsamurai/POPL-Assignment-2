@@ -22,8 +22,8 @@ description: Practical rules for writing, running and reviewing SWI-Prolog 9.x c
 - Quote atoms that need it: `'Alex'`, `'AI'`, `'c++'`.
 
 ## Running
-- Main goal, as the grader does: `swipl -q -f code/21_q1.pl -g main -t halt`
-- Any other goal: `swipl -q -f code/21_q1.pl -g "count_solutions([1,2,3],N), writeln(N)" -t halt`
+- Main goal, as the grader does: `swipl -q -f code/47_q1.pl -g main -t halt`
+- Any other goal: `swipl -q -f code/47_q1.pl -g "count_solutions([1,2,3],N), writeln(N)" -t halt`
 - A goal that fails exits with status 1; one that succeeds exits with 0.
 
 ## Testing with plunit

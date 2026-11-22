@@ -7,11 +7,11 @@ description: Rules for writing, testing and reviewing restricted Racket 8.x (#la
 
 ## Environment
 - Racket 8.x. Every solution file starts with `#lang racket/base`.
-- Solution files contain **definitions only**: no top-level calls, nothing printed when the file is loaded. The grader appends its own calls and runs `racket 21_qN.rkt`.
+- Solution files contain **definitions only**: no top-level calls, nothing printed when the file is loaded. The grader appends its own calls and runs `racket 47_qN.rkt`.
 
 ## Allowed built-ins (the complete list)
 `define`, `lambda`, `let`, `let*`, `letrec`, named `let`, `if`, `cond` (with `else`), `and`, `or`, `not`, `begin`, `quote` (`'`), `cons`, `car`, `cdr`, `list`, compositions of `car`/`cdr` up to four levels (`cadr`, `cddr`, `caddr`, `cdddr`, `cadddr`, `cddddr`, ...), `null?`, `pair?`, `eq?`, `assq`, `assoc`, `+`, `-`, `*`, `<`, `>`, `<=`, `>=`, `=`, `max`, `display`, `newline`.
-Q4 (`21_q4.rkt`) may also use `read`.
+Q4 (`47_q4.rkt`) may also use `read`.
 
 ## Forbidden (examples, not exhaustive: anything not listed above is forbidden)
 - Mutation: `set!`, `set-car!`, `set-cdr!`, boxes.
