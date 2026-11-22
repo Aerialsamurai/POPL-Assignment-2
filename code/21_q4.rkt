@@ -28,11 +28,28 @@
 (define (list-value? v)
   (or (null? v) (pair? v)))
 
-;; (insert-if-short x lst n): lst with every sublist (at every level) processed
-;; the same way, and x put in front when lst's original length is less than n
+;; S2.c (make-inserter x len-ok?): a function that, given a list, processes
+;; every sublist (at every level) the same way and puts x in front of each list
+;; whose original length satisfies len-ok?
+(define (make-inserter x len-ok?)
+  (letrec ((walk
+            (lambda (lst)
+              (let ((inner (my-map (lambda (e) (if (list-value? e) (walk e) e))
+                                   lst)))
+                (if (len-ok? (my-length lst))
+                    (cons x inner)
+                    inner)))))
+    walk))
+
+;; S2.b / S2.c (insert-if-short x lst n): insert x into every list shorter than n
 (define (insert-if-short x lst n)
-  (let ((inner (my-map (lambda (e) (if (list-value? e) (insert-if-short x e n) e))
-                       lst)))
-    (if (< (my-length lst) n)
-        (cons x inner)
-        inner)))
+  ((make-inserter x (lambda (len) (< len n))) lst))
+
+;; S2.a (print-insert-result): read x, lst and n from standard input, in that
+;; order, and print the result followed by a newline
+(define (print-insert-result)
+  (let* ((x (read))
+         (lst (read))
+         (n (read)))
+    (display (insert-if-short x lst n))
+    (newline)))
