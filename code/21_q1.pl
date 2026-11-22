@@ -2,7 +2,7 @@
 % SWI-Prolog 9.x.  Run:  swipl -q -f 21_q1.pl -g main -t halt
 %
 % A solution is a list [p('Alex',D,L,P), p('Ben',..), p('Carla',..), p('Dana',..)]
-% where p(Name, Dept, Lang, Project).
+% where p(Name, Department, Language, Project).
 
 :- use_module(library(lists)).
 
@@ -10,15 +10,16 @@
 % Domains
 % ---------------------------------------------------------------------------
 
+% departments(-Ds), languages(-Ls), projects(-Ps): the four values of each attribute.
 departments([research, development, design, testing]).
 languages([python, java, 'c++', javascript]).
 projects(['AI', web, embedded, data]).
 
+% all_clues(-Ns): the clue numbers of the original puzzle.
 all_clues([1, 2, 3, 4, 5, 6, 7, 8]).
 
-% candidate(-Solution)
-% Solution is any assignment in which each department, language and project
-% is used by exactly one friend (a permutation of each domain).
+% candidate(-S): S is an assignment, in the order Alex, Ben, Carla, Dana, in
+% which every department, language and project is used by exactly one friend.
 candidate([p('Alex',  D1, L1, P1),
            p('Ben',   D2, L2, P2),
            p('Carla', D3, L3, P3),
@@ -28,12 +29,12 @@ candidate([p('Alex',  D1, L1, P1),
     projects(Ps),    permutation(Ps, [P1, P2, P3, P4]).
 
 % ---------------------------------------------------------------------------
-% Clues.  clue(N, S) holds exactly when clue N is true in the filled-in S.
-% "The friend who ..." clues are written with forall/2, so they read as
+% Clues.  clue(+N, +S) holds exactly when clue N is true in the fully
+% instantiated solution S.  "The friend who ..." clues use forall/2:
 % "every friend who ... also ...".
 % ---------------------------------------------------------------------------
 
-% 1. The friend who prefers the AI project does not work in research and is not Dana.
+% 1. The friend who prefers AI does not work in research and is not Dana.
 clue(1, S) :-
     forall(member(p(Name, Dept, _, 'AI'), S),
            ( Dept \== research, Name \== 'Dana' )).
@@ -44,7 +45,7 @@ clue(2, S) :-
     Dept \== development,
     Lang \== 'c++'.
 
-% 3. The friend working in the testing department likes Python.
+% 3. The friend working in testing likes Python.
 clue(3, S) :-
     forall(member(p(_, testing, Lang, _), S), Lang == python).
 
@@ -54,30 +55,26 @@ clue(4, S) :-
     Proj == web,
     Dept \== testing.
 
-% 5. The friend whose favorite language is Java works in the design department.
+% 5. The friend whose favorite language is Java works in design.
 clue(5, S) :-
     forall(member(p(_, Dept, java, _), S), Dept == design).
 
-% 6. Carla's project preference is not embedded, and her department is not development.
+% 6. Carla does not prefer embedded and does not work in development.
 clue(6, S) :-
     memberchk(p('Carla', Dept, _, Proj), S),
     Proj \== embedded,
     Dept \== development.
 
-% 7. Dana's favorite language is not Java, and she works in research or testing.
+% 7. Dana does not prefer Java and works in research or testing.
 clue(7, S) :-
     memberchk(p('Dana', Dept, Lang, _), S),
     Lang \== java,
     memberchk(Dept, [research, testing]).
 
-% 8. The friend who prefers data projects works in research and does not use JavaScript.
+% 8. The friend who prefers data works in research and does not use JavaScript.
 clue(8, S) :-
     forall(member(p(_, Dept, Lang, data), S),
            ( Dept == research, Lang \== javascript )).
-
-% CLUE 9: The friend who prefers the AI project works in the testing department.
-clue(9, S) :-
-    forall(member(p(_, Dept, _, 'AI'), S), Dept == testing).
 
 % ---------------------------------------------------------------------------
 % Solving and counting
@@ -87,22 +84,23 @@ clue(9, S) :-
 satisfies(Active, S) :-
     forall(member(N, Active), clue(N, S)).
 
-% solve(+Active, -S): S is a candidate that satisfies exactly the clues in Active.
+% solve(+Active, -S): S is a candidate satisfying the clues in Active;
+% clues not in Active are ignored.
 solve(Active, S) :-
     candidate(S),
     satisfies(Active, S).
 
-% count_solutions(+Active, -N): N solutions satisfy the clues in Active
-% (all other clues are ignored).
+% count_solutions(+Active, -N): N is the number of candidates satisfying
+% exactly the clues in Active.
 count_solutions(Active, N) :-
     findall(S, solve(Active, S), Solutions),
     length(Solutions, N).
 
-% print_friend(+P): print one line "Name = [Dept, Lang, Project]".
+% print_friend(+P): prints one line "Name = [Dept, Lang, Project]".
 print_friend(p(Name, Dept, Lang, Proj)) :-
     format("~w = [~w, ~w, ~w]~n", [Name, Dept, Lang, Proj]).
 
-% main: derive one solution of clues 1..8 and print it, Alex to Dana.
+% main: derives one solution of clues 1-8 and prints it, Alex to Dana.
 main :-
     all_clues(Active),
     once(solve(Active, S)),
