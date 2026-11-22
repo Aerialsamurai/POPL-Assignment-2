@@ -48,8 +48,15 @@
 (define t6 '(1 (2 () (4 () ())) (3 () ())))
 ")
 
-;; loading the file alone must print nothing
-(check "load prints nothing" "" "")
+;; loading the original solution file (not a copy) must print nothing
+(let ([out (open-output-string)] [err (open-output-string)])
+  (parameterize ([current-output-port out] [current-error-port err])
+    (system* racket-path code-file))
+  (if (and (equal? (get-output-string out) "") (equal? (get-output-string err) ""))
+      (set! pass (add1 pass))
+      (begin (set! fail (add1 fail))
+             (printf "FAIL original file prints on load: ~s ~s\n"
+                     (get-output-string out) (get-output-string err)))))
 
 ;; --- examples from the assignment ---
 (check "inorder t1" (string-append trees "(print-inorder t1)") "(1 2 3 4 5 6 7)\n")
