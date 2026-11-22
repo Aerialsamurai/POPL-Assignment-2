@@ -89,6 +89,11 @@
 (check "my-length" "(display (list (my-length '()) (my-length '(1 (2 3) ()))))" "(0 3)")
 (check "my-map" "(display (my-map (lambda (v) (* v v)) '(1 2 3)))" "(1 4 9)")
 (check "my-map empty" "(display (my-map (lambda (v) v) '()))" "()")
+(check "my-length and my-map on 10,000 elements"
+       (string-append "(define big '(" big "))"
+                      "(display (list (my-length big) (my-length (my-map (lambda (v) (+ v 1)) big))"
+                      " (car (my-map (lambda (v) (+ v 1)) big))))")
+       "(10000 10000 1)")
 (check "insert-if-short direct" "(display (insert-if-short 'z '(1 (2 3 4) ()) 2))"
        "(1 (2 3 4) (z))")
 
