@@ -1,6 +1,4 @@
-% Tests for P1.  Run from anywhere:
-%   swipl -q -f tests/test_q1.pl -g run_tests -t halt
-% Loads the *_q1.pl file in ../code relative to this test file.
+
 
 :- use_module(library(plunit)).
 :- use_module(library(lists)).
@@ -10,12 +8,11 @@
    expand_file_name(Pattern, [File|_]),
    consult(File).
 
-% good(-S): a hand-made complete solution that satisfies every clue 1-8.
+
 good([p('Alex',design,java,'AI'),     p('Ben',development,javascript,web),
       p('Carla',research,'c++',data), p('Dana',testing,python,embedded)]).
 
-% bad(?N, -S): a hand-made complete assignment (each value used once) that
-% breaks clue N.  Each is good/1 with one pair of values swapped.
+
 bad(1, [p('Alex',design,java,embedded),  p('Ben',development,javascript,web),    % Dana has AI
         p('Carla',research,'c++',data),  p('Dana',testing,python,'AI')]).
 bad(2, [p('Alex',development,java,'AI'), p('Ben',design,javascript,web),         % Alex in development
