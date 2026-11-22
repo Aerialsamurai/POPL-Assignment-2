@@ -23,31 +23,3 @@
     (if (null? l)
         (my-reverse acc)
         (loop (cdr l) (cons (f (car l)) acc)))))
-
-;; a list is the empty list or a pair (there are no dotted pairs)
-(define (list-value? v)
-  (or (null? v) (pair? v)))
-
-;; S2.c (make-inserter x len-ok?): a function that, given a list, puts x in
-;; front of every list (at every level) whose original length satisfies len-ok?.
-(define (make-inserter x len-ok?)
-  (letrec ((walk
-            (lambda (lst)
-              (let ((inner (my-map (lambda (e) (if (list-value? e) (walk e) e))
-                                   lst)))
-                (if (len-ok? (my-length lst))
-                    (cons x inner)
-                    inner)))))
-    walk))
-
-;; S2.b / S2.c (insert-if-short x lst n): insert x into every list shorter than n
-(define (insert-if-short x lst n)
-  ((make-inserter x (lambda (len) (< len n))) lst))
-
-;; S2.a read x, lst and n from standard input and print the result
-(define (print-insert-result)
-  (let* ((x (read))
-         (lst (read))
-         (n (read)))
-    (display (insert-if-short x lst n))
-    (newline)))
