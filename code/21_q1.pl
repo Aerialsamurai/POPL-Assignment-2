@@ -1,5 +1,5 @@
 % P1: Department Assignment Puzzle, Reloaded
-% SWI-Prolog 9.x.  Run:  swipl -q -f 21_q1.pl -g main -t halt
+% SWI-Prolog 9.x.  Entry point: main/0 (prints one solution of clues 1-8).
 %
 % A solution is a list [p('Alex',D,L,P), p('Ben',..), p('Carla',..), p('Dana',..)]
 % where p(Name, Department, Language, Project).
