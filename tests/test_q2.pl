@@ -63,6 +63,14 @@ test(division_with_zero_dividend) :-
 test(exact_division_only) :-
     all_equations([6,3,2], Es), Es == ["6/3=2", "6=3*2"].
 
+test(inexact_division_rejected) :-  % 7/2 is not exact, so "7/2=3" must not appear
+    all_equations([7,2,3], Es),
+    \+ memberchk("7/2=3", Es).
+
+test(inexact_division_inside_expression) :-  % 5/2*2 would be 5 only with truncation
+    all_equations([5,2,2,5], Es),
+    \+ memberchk("5/2*2=5", Es).
+
 test(trailing_zeros) :-
     all_equations([3,0,0], Es), Es == ["3*0=0"].
 
