@@ -23,3 +23,16 @@
     (if (null? l)
         (my-reverse acc)
         (loop (cdr l) (cons (f (car l)) acc)))))
+
+;; a list is the empty list or a pair (there are no dotted pairs)
+(define (list-value? v)
+  (or (null? v) (pair? v)))
+
+;; (insert-if-short x lst n): lst with every sublist (at every level) processed
+;; the same way, and x put in front when lst's original length is less than n
+(define (insert-if-short x lst n)
+  (let ((inner (my-map (lambda (e) (if (list-value? e) (insert-if-short x e n) e))
+                       lst)))
+    (if (< (my-length lst) n)
+        (cons x inner)
+        inner)))
