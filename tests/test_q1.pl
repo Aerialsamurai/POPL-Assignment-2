@@ -10,69 +10,93 @@
    expand_file_name(Pattern, [File|_]),
    consult(File).
 
-% The three solutions of clues 1..8 (checked independently by brute force).
-sol_a([p('Alex',design,java,'AI'),     p('Ben',development,javascript,web),
-       p('Carla',research,'c++',data), p('Dana',testing,python,embedded)]).
-sol_b([p('Alex',design,java,embedded), p('Ben',development,javascript,web),
-       p('Carla',testing,python,'AI'), p('Dana',research,'c++',data)]).
-sol_c([p('Alex',testing,python,embedded), p('Ben',development,javascript,web),
-       p('Carla',design,java,'AI'),        p('Dana',research,'c++',data)]).
+% good(-S): a hand-made complete solution that satisfies every clue 1-8.
+good([p('Alex',design,java,'AI'),     p('Ben',development,javascript,web),
+      p('Carla',research,'c++',data), p('Dana',testing,python,embedded)]).
 
-:- begin_tests(p1).
+% bad(?N, -S): a hand-made complete assignment (each value used once) that
+% breaks clue N.  Each is good/1 with one pair of values swapped.
+bad(1, [p('Alex',design,java,embedded),  p('Ben',development,javascript,web),    % Dana has AI
+        p('Carla',research,'c++',data),  p('Dana',testing,python,'AI')]).
+bad(2, [p('Alex',development,java,'AI'), p('Ben',design,javascript,web),         % Alex in development
+        p('Carla',research,'c++',data),  p('Dana',testing,python,embedded)]).
+bad(3, [p('Alex',design,java,'AI'),      p('Ben',development,javascript,web),    % tester likes c++
+        p('Carla',research,python,data), p('Dana',testing,'c++',embedded)]).
+bad(4, [p('Alex',design,java,'AI'),      p('Ben',development,javascript,embedded), % Ben not web
+        p('Carla',research,'c++',data),  p('Dana',testing,python,web)]).
+bad(5, [p('Alex',design,javascript,'AI'), p('Ben',development,java,web),         % Java in development
+        p('Carla',research,'c++',data),  p('Dana',testing,python,embedded)]).
+bad(6, [p('Alex',design,java,'AI'),      p('Ben',development,javascript,web),    % Carla embedded
+        p('Carla',research,'c++',embedded), p('Dana',testing,python,data)]).
+bad(7, [p('Alex',design,python,'AI'),    p('Ben',development,javascript,web),    % Dana likes Java
+        p('Carla',research,'c++',data),  p('Dana',testing,java,embedded)]).
+bad(8, [p('Alex',design,java,'AI'),      p('Ben',development,'c++',web),         % data with JavaScript
+        p('Carla',research,javascript,data), p('Dana',testing,python,embedded)]).
 
-test(count_1_to_8) :-
-    count_solutions([1,2,3,4,5,6,7,8], N), N =:= 3.
+:- begin_tests(p1_counts).
 
-test(count_with_clue_9) :-
-    count_solutions([1,2,3,4,5,6,7,8,9], N), N =:= 1.
-
-test(count_no_clues) :-          % 4!^3 unconstrained assignments
+test(no_clues) :-                  % 4! * 4! * 4! unconstrained assignments
     count_solutions([], N), N =:= 13824.
 
-test(count_single_clue_4) :-     % Ben fixed to web (6 project perms), Ben not testing (3 depts of 4)
-    count_solutions([4], N), N =:= 24 * 18 * 6.
+test(single_clue_4) :-             % Ben: 3 departments, web fixed -> 18 * 24 * 6
+    count_solutions([4], N), N =:= 2592.
 
-test(all_clues_hold_in_each_solution) :-
-    forall(member(G, [sol_a, sol_b, sol_c]),
-           ( call(G, S), forall(between(1, 8, K), clue(K, S)) )).
+test(single_clue_2) :-             % Alex: 3 departments, 3 languages -> 18 * 18 * 24
+    count_solutions([2], N), N =:= 7776.
 
-test(clue_9_true_only_in_kept_solution) :-
-    sol_b(B), clue(9, B),
-    sol_a(A), \+ clue(9, A),
-    sol_c(C), \+ clue(9, C).
+test(clues_1_to_8) :-
+    count_solutions([1,2,3,4,5,6,7,8], N), N =:= 3.
 
-test(unique_solution_is_sol_b) :-
-    findall(S, solve([1,2,3,4,5,6,7,8,9], S), [S1]),
-    sol_b(S1).
+test(order_of_active_irrelevant) :-
+    count_solutions([8,7,6,5,4,3,2,1], N), N =:= 3.
 
-test(clue_1_rejects_dana_ai) :-
-    \+ clue(1, [p('Alex',design,java,web), p('Ben',development,javascript,embedded),
-                p('Carla',research,'c++',data), p('Dana',testing,python,'AI')]).
+:- end_tests(p1_counts).
 
-test(clue_7_rejects_dana_in_design) :-
-    \+ clue(7, [p('Alex',research,java,web), p('Ben',development,javascript,embedded),
-                p('Carla',testing,'c++',data), p('Dana',design,python,'AI')]).
+:- begin_tests(p1_clues).
 
-test(main_output) :-
+test(good_solution_is_complete) :-
+    good(S), once(candidate(S)).
+
+test(bad_solutions_are_complete, [forall(between(1, 8, N))]) :-
+    bad(N, S), once(candidate(S)).
+
+test(clue_holds, [forall(between(1, 8, N))]) :-
+    good(S), clue(N, S).
+
+test(clue_fails, [forall(between(1, 8, N)), fail]) :-
+    bad(N, S), clue(N, S).
+
+:- end_tests(p1_clues).
+
+:- begin_tests(p1_main).
+
+test(main_prints_four_lines) :-
     with_output_to(string(Out), main),
-    split_string(Out, "\n", "", Lines0),
-    exclude(==(""), Lines0, Lines),
-    length(Lines, 4),
-    Lines = [LA, LB, LC, LD],
-    sub_string(LA, 0, _, _, "Alex = ["),
-    sub_string(LB, 0, _, _, "Ben = ["),
-    sub_string(LC, 0, _, _, "Carla = ["),
-    sub_string(LD, 0, _, _, "Dana = [").
+    split_string(Out, "\n", "", Parts),
+    once(append(Lines, [""], Parts)),     % output ends with a newline
+    length(Lines, 4).
 
-test(main_prints_a_real_solution) :-
+test(main_line_format) :-
     with_output_to(string(Out), main),
-    member(G, [sol_a, sol_b, sol_c]),
-    call(G, S),
-    with_output_to(string(Exp), forall(member(P, S), print_friend(P))),
-    Out == Exp, !.
+    split_string(Out, "\n", "", [LA, LB, LC, LD, ""]),
+    line_for('Alex', LA), line_for('Ben', LB),
+    line_for('Carla', LC), line_for('Dana', LD).
 
-test(main_exact_first_line) :-
+test(main_prints_a_solution_of_1_to_8) :-
     with_output_to(string(Out), main),
-    sub_string(Out, 0, _, _, "Alex = [design, java, AI]\n").
+    findall(S, solve([1,2,3,4,5,6,7,8], S), Sols),
+    member(S, Sols),
+    with_output_to(string(Out), forall(member(P, S), print_friend(P))), !.
 
-:- end_tests(p1).
+:- end_tests(p1_main).
+
+% line_for(+Name, +Line): Line is "Name = [D, L, P]" with three valid values.
+line_for(Name, Line) :-
+    format(string(Prefix), "~w = [", [Name]),
+    string_concat(Prefix, Rest, Line),
+    string_concat(Inner, "]", Rest),
+    split_string(Inner, ",", " ", [D, L, P]),
+    atom_string(DA, D), atom_string(LA, L), atom_string(PA, P),
+    departments(Ds), memberchk(DA, Ds),
+    languages(Ls), memberchk(LA, Ls),
+    projects(Ps), memberchk(PA, Ps).
