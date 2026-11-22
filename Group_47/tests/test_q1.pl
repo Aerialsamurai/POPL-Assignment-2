@@ -94,11 +94,15 @@ test(main_line_format) :-
     line_for('Alex', LA), line_for('Ben', LB),
     line_for('Carla', LC), line_for('Dana', LD).
 
+% main/0's output must equal the printed form of one of the solutions of 1-8.
 test(main_prints_a_solution_of_1_to_8) :-
-    with_output_to(string(Out), main),
-    findall(S, solve([1,2,3,4,5,6,7,8], S), Sols),
-    member(S, Sols),
-    with_output_to(string(Out), forall(member(P, S), print_friend(P))), !.
+    with_output_to(string(MainOut), main),
+    findall(Expected,
+            ( solve([1,2,3,4,5,6,7,8], S),
+              with_output_to(string(Expected), forall(member(P, S), print_friend(P))) ),
+            AllExpected),
+    length(AllExpected, 3),
+    memberchk(MainOut, AllExpected).
 
 :- end_tests(p1_main).
 
