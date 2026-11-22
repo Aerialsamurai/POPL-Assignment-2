@@ -76,6 +76,10 @@ clue(8, S) :-
     forall(member(p(_, Dept, Lang, data), S),
            ( Dept == research, Lang \== javascript )).
 
+% CLUE 9: The friend who prefers the AI project works in the testing department.
+clue(9, S) :-
+    forall(member(p(_, Dept, _, 'AI'), S), Dept == testing).
+
 % ---------------------------------------------------------------------------
 % Solving and counting
 % ---------------------------------------------------------------------------

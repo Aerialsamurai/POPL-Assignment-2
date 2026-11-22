@@ -50,6 +50,18 @@ test(clues_1_to_8) :-
 test(order_of_active_irrelevant) :-
     count_solutions([8,7,6,5,4,3,2,1], N), N =:= 3.
 
+test(clues_1_to_9_unique) :-
+    count_solutions([1,2,3,4,5,6,7,8,9], N), N =:= 1.
+
+test(clue_9_keeps_the_testing_ai_solution) :-
+    findall(S, solve([1,2,3,4,5,6,7,8,9], S), [S1]),
+    S1 == [p('Alex',design,java,embedded), p('Ben',development,javascript,web),
+           p('Carla',testing,python,'AI'), p('Dana',research,'c++',data)].
+
+test(clue_9_false_in_other_two) :-
+    findall(S, (solve([1,2,3,4,5,6,7,8], S), \+ clue(9, S)), Rejected),
+    length(Rejected, 2).
+
 :- end_tests(p1_counts).
 
 :- begin_tests(p1_clues).
